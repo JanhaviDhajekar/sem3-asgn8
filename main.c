@@ -1,181 +1,162 @@
-#include  <stdio.h> 
-#include  <stdlib.h> 
-#include  <string.h>
-
-struct member
+#include<stdio.h>
+struct student
 {
-char  name[20]; 
- int prn;
-int roll;
-struct  member  *next;
-};
-
-struct member* create()
+ int rollno;
+ char name[15];
+ char div[3];
+ char address[30];
+}stud;
+// INSERT RECORD
+void insert()
 {
-int  r,p; 
- char  n[20];
-struct  member  *head;
-head  =  (struct  member*)malloc(sizeof(struct  member));
-printf("Enter  Name,  PRN  and  Roll  number  of  President  of  the  club\n"); 
- scanf("%s%d%d",n,&p,&r);
-strcpy(head->name,n); 
-  head->prn  =  p;
-head->roll = r; 
-  head->next  =  NULL; 
-  return  head;
+ FILE *fp;
+ fp = fopen("Record", "a");
+ printf("Enter roll no:");
+ scanf("%d", &stud.rollno);
+ printf("Enter name:");
+ scanf("%s", stud.name);
+ printf("Enter div:");
+ scanf("%s", stud.div);
+ printf("Enter address:");
+ scanf("%s", stud.address);
+ fwrite(&stud, sizeof(stud), 1, fp);
+ fclose(fp);
+}
+//DISPLAY RECORDS
+void disp()
+{
+ FILE *fp1;
+ fp1 = fopen("Record", "r");
+ printf("\nRollNo\tName\tDiv\t\tAddress\n\n");
+ while (fread(&stud, sizeof(stud), 1, fp1))
+ printf("%d\t%s\t%s\t%s\n", stud.rollno, stud.name, stud.div,stud.address);
+ fclose(fp1);
 }
 
-void  add(int  m,struct  member  *head)
+//DELETE A RECORD
+void deletefile()
 {
-int  p,r; char  n[20];
-struct  member  *temp;
-for(int  i=0;i<m;i++)
-{
-temp  =  (struct  member*)malloc(sizeof(struct  member)); printf("Enter  Name,  PRN  and  Roll  number  of  the  member\n"); scanf("%s%d%d",n,&p,&r);
-strcpy(temp->name,n); temp->prn  =  p;
-temp->roll  =  r; head->next  =  temp; head  =  temp;
+ FILE *fpo;
+ FILE *fpt;
+ int r, s;
+ printf("Enter the Roll no you want to delete :");
+ scanf("%d", &r);
+ if (r == 0 || r == 21 || r == 22 || r == 23 || r==24 || r == 25 || r == 26 || r == 27 || r==28 || r == 29 || r==30)
+  printf("Roll no %d is not available in the file\n", r);
+ else
+ {
+  fpo = fopen("Record", "r");
+  fpt = fopen("TempFile", "w");
+  while (fread(&stud, sizeof(stud), 1, fpo))
+  {
+   s = stud.rollno;
+   if (s != r)
+    fwrite(&stud, sizeof(stud), 1, fpt);
+  }
+  fclose(fpo);
+  fclose(fpt);
+  fpo = fopen("Record", "w");
+  fpt = fopen("TempFile", "r");
+  while (fread(&stud, sizeof(stud), 1, fpt))
+   fwrite(&stud, sizeof(stud), 1, fpo);
+  printf("\nRECORD DELETED\n");
+  fclose(fpo);
+  fclose(fpt);
+ }
+
 }
+//UPDATE THE RECORD
+void update()
+{
+ int avl;
+ FILE *fpt;
+ FILE *fpo;
+ int s, r, ch;
+ printf("Enter roll number to update:");
+ scanf("%d", &r);
+ avl = r;
+ if (avl == 0)
+ {
+  printf("Roll number %d is not Available in the file", r);
+ }
+ else
+ {
+  fpo = fopen("Record", "r");
+  fpt = fopen("TempFile", "w");
+  while (fread(&stud, sizeof(stud), 1, fpo))
+  {
+   s = stud.rollno;
+   if (s != r)
+    fwrite(&stud, sizeof(stud), 1, fpt);
+   else
+   {
+    printf("\n1.Update Name of Roll Number %d", r);
+    printf("\n2.Update div of Roll Number %d", r);
+    printf("\n3.Update address of Roll Number %d", r);
+    printf("\n4.Done");
+    printf("\nEnter your choice:");
+    scanf("%d", &ch);
+    switch (ch)
+    {
+    case 1:
+     printf("Enter Name:");
+     scanf("%s", stud.name);
+     break;
+
+    case 2:
+     printf("Enter div: ");
+     scanf("%s", stud.div);
+     break;
+
+    case 3:
+     printf("Enter address: ");
+     scanf("%s", stud.address);
+     break;
+    }
+    fwrite(&stud, sizeof(stud), 1, fpt);
+   }
+  }
+  fclose(fpo);
+  fclose(fpt);
+  fpo = fopen("Record", "w");
+  fpt = fopen("TempFile", "r");
+  while (fread(&stud, sizeof(stud), 1, fpt))
+  {
+   fwrite(&stud, sizeof(stud), 1, fpo);
+  }
+  fclose(fpo);
+  fclose(fpt);
+  printf("RECORD UPDATED");
+ }
 }
 
-void  display(struct  member  *head)
-{
-printf("Name\tPRN\t\tRoll\n"); while(head != NULL)
-{
-printf("%s\t\t%d\t\t%d\n",head->name,head->prn,head->roll); 
-  head  =  head->next;
-}
-}
-
-void  addS(struct  member  *head)
-{
-int  r,p; 
-char  n[20];
-struct  member  *new;
-new  =  (struct  member*)malloc(sizeof(struct  member));
-printf("Enter  Name,  PRN  and  Roll  number  of  Secretory  of  the  club\n");
-scanf("%s%d%d",n,&p,&r);
-strcpy(new->name,n);
-new->prn  =  p;
-new->roll = r; 
-new->next  =  NULL;
-while(head->next != NULL)
-{
-head  =  head->next;
-}
-head->next  =  new;
-}
-
-struct  member*  deleteP(struct  member  *head)
-{
-struct  member  *p; 
-p  =  head->next; free(head); return  p;
-}
-void  deleteS(struct  member  *head)
-{
-int  counter  =0;
-struct  member  *p  =  head; \
-while(head->next != NULL)
-{
-head  =  head->next; 
-counter++;
-}
-free(head); counter-=1; while(counter--)
-{
-p  =  p->next;
-}
-p->next  =  NULL;
-}
-
-void  deleteM(struct  member  *head,int  prn)
-{
-struct  member  *q; 
-while(head->prn != prn)
-{
-q  =  head;
-head  =  head->next;
-}
-q->next  =  head->next; 
-free(head);
-}
-
-int  numberM(struct  member  *head)
-{
-struct  member  *p  =  head; 
-int  counter=0;
-while(p->next  !=  NULL)
-{
-p  =  p->next; 
-counter++;
-}
-return  counter;
-}
-
-void  reverse(struct  member  *head)
-{
-struct  member  *p  =  head;
-}
 int main()
 {
-int  choice,m,p; 
-struct  member  *head; 
-do
-{
-printf("Menu\n"); 
-  printf("1.Create\n"); 
-  printf("2.Add  Member\n"); 
-  printf("3.Add  Secretary\n"); 
-  printf("4.Delete  President\n"); 
-  printf("5.Delete  Secretary\n"); 
-  printf("6.Delete  Member\n"); 
-  printf("7.Display\n"); 
-  printf("8.Reverse\n"); 
-  printf("9.Exit\n"); 
-  scanf("%d",&choice);
+ int c, emp;
+ do
+ {
+  printf("\nMENU:-\n");
+  printf("1.INSERT\n2.DISPLAY\n3.DELETE\n4.UPDATE\n5.EXIT");
+  printf("\nEnter your choice:");
+  scanf("%d", &c);
 
-switch(choice)
-{
-case  1:
-head = create(); 
-    break;
+  switch (c)
+  {
+  case 1:
+   insert();
+   break;
+  case 2:
+    disp();
+   break;
+  case 3:
+   deletefile();
+   break;
+  case 4:
+   update();
+   break;
 
-case  2:
-printf("Enter  number  of  members:"); 
-    scanf("%d",&m);
-add(m,head); 
-    break;
-
-case  3: 
-    addS(head); 
-    break;
-
-case  4:
-head = deleteP(head); 
-    display(head);
-break;
-
-case  5: deleteS(head); 
-    display(head); 
-    break;
-
-case  6:
-printf("Eneter PRN number of the member to be deleted: "); 
-    scanf("%d",&p);
-deleteM(head,p);
-display(head); 
-    break;
-
-case  7: 
-    display(head); 
-    break;
-
-case  9: 
-    printf("Bye!!!\n"); 
-    break;
-
-default:
-printf("Enter  valid  number\n");
-}
-}while(choice!=9); 
-  return  0;
-
+  }
+ } while (c!= 5);
+ if(c==5)
+ printf("Thank you!");
 }
